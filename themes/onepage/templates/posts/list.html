@@ -1,0 +1,21 @@
+<a href="#/new" class="btn btn-primary">New Post</a>
+<a href="#/view" class="btn btn-primary">Sample View</a>
+<table class="table striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Content</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <% _.each(posts, function(post){ %>
+            <tr>
+                <td><%= post.get('title') %></td>                    
+                <td><%= post.get('content') %></td>                    
+                <td><a href="#/edit/<%= post.id %>" class="btn btn-default">Edit</a></td>
+                <td><a href="#/delete/<%= post.id %>" class="btn btn-danger">Delete</a></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>

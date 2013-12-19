@@ -1,0 +1,31 @@
+<a href="#/view/change" class="btn btn-primary">Change image</a>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <table class="table hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% _.each(posts, function(post){ %>
+                        <tr>
+                            <td><%= post.get('title') %></td>                    
+                            <td><%= post.get('content') %></td>                    
+                            <td><a href="#/edit/<%= post.id %>" class="btn btn-default">Edit</a></td>
+                            <td><a href="#/delete/<%= post.id %>" class="btn btn-danger">Delete</a></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-md-4 second">
+            <img src="http://www.astroweek.pl/wp-content/uploads/2013/07/nasa_logo.jpeg" class="img-responsive" />
+        </div>
+    </div>
+</div>
