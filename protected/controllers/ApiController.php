@@ -1,20 +1,14 @@
 <?php
 class ApiController extends Controller
 {
-    // Members
+
     /**
      * Key which has to be in HTTP USERNAME and PASSWORD headers 
      */
     Const APPLICATION_ID = 'ASCCPE';
  
-    /**
-     * Default response format
-     * either 'json' or 'xml'
-     */
     private $format = 'json';
-    /**
-     * @return array action filters
-     */
+
     public function filters()
     {
             return array();
@@ -56,11 +50,7 @@ class ApiController extends Controller
 
         $post = file_get_contents("php://input");
 
-        //decode json post input as php array:
-        $data = CJSON::decode($post, true);
-        
-//        print_r($data);
-//        die;
+        $data = CJSON::decode($post, true);        
         
         foreach($data as $var=>$value) {
             if($model->hasAttribute($var))
@@ -92,9 +82,8 @@ class ApiController extends Controller
     
     public function actionUpdate()
     {
-        // Parse the PUT parameters. This didn't work: parse_str(file_get_contents('php://input'), $put_vars);
-        $json = file_get_contents('php://input'); //$GLOBALS['HTTP_RAW_POST_DATA'] is not preferred: http://www.php.net/manual/en/ini.core.php#ini.always-populate-raw-post-data
-        $put_vars = CJSON::decode($json,true);  //true means use associative array
+        $json = file_get_contents('php://input');
+        $put_vars = CJSON::decode($json,true); 
 
         $model=$this->_getModel();
         $record=$model::model()->findByPk($_GET['id']);  
@@ -155,27 +144,20 @@ class ApiController extends Controller
     
     private function _sendResponse($status = 200, $body = '', $content_type = 'text/html')
     {
-        // set the status
         $status_header = 'HTTP/1.1 ' . $status . ' ' . $this->_getStatusCodeMessage($status);
         header($status_header);
-        // and the content type
+
         header('Content-type: ' . $content_type);
 
-        // pages with body are easy
         if($body != '')
         {
-            // send the body
             echo $body;
         }
-        // we need to create the body if none is passed
+
         else
         {
-            // create some body messages
             $message = '';
 
-            // this is purely optional, but makes the pages a little nicer to read
-            // for your users.  Since you won't likely send a lot of different status codes,
-            // this also shouldn't be too ponderous to maintain
             switch($status)
             {
                 case 401:
@@ -192,11 +174,8 @@ class ApiController extends Controller
                     break;
             }
 
-            // servers don't always have a signature turned on 
-            // (this is an apache directive "ServerSignature On")
             $signature = ($_SERVER['SERVER_SIGNATURE'] == '') ? $_SERVER['SERVER_SOFTWARE'] . ' Server at ' . $_SERVER['SERVER_NAME'] . ' Port ' . $_SERVER['SERVER_PORT'] : $_SERVER['SERVER_SIGNATURE'];
 
-            // this should be templated in a real-world solution
             $body = '
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
     <html>
@@ -219,9 +198,6 @@ class ApiController extends Controller
     
     private function _getStatusCodeMessage($status)
     {
-        // these could be stored in a .ini file and loaded
-        // via parse_ini_file()... however, this will suffice
-        // for an example
         $codes = Array(
             200 => 'OK',
             400 => 'Bad Request',
@@ -237,20 +213,16 @@ class ApiController extends Controller
     
     private function _checkAuth()
     {
-        // Check if we have the USERNAME and PASSWORD HTTP headers set?
         if(!(isset($_SERVER['HTTP_X_USERNAME']) and isset($_SERVER['HTTP_X_PASSWORD']))) {
-            // Error: Unauthorized
             $this->_sendResponse(401);
         }
         $username = $_SERVER['HTTP_X_USERNAME'];
         $password = $_SERVER['HTTP_X_PASSWORD'];
-        // Find the user
+
         $user=User::model()->find('LOWER(username)=?',array(strtolower($username)));
         if($user===null) {
-            // Error: Unauthorized
             $this->_sendResponse(401, 'Error: User Name is invalid');
         } else if(!$user->validatePassword($password)) {
-            // Error: Unauthorized
             $this->_sendResponse(401, 'Error: User Password is invalid');
         }
     }
